@@ -448,7 +448,7 @@ static void send_beast_heartbeat(struct net_service *service)
 //
 static void modesSendRawOutput(struct modesMessage *mm) {
     int  msgLen = mm->msgbits / 8;
-    char *p = prepareWrite(&Modes.raw_out, msgLen*2 + 15);
+    char *p = prepareWrite(&Modes.raw_out, msgLen*2 + 15 + 26);
     int j;
     unsigned char *msg = (Modes.net_verbatim ? mm->verbatim : mm->msg);
 
@@ -469,6 +469,8 @@ static void modesSendRawOutput(struct modesMessage *mm) {
     }
 
     *p++ = ';';
+    sprintf(p, "RSSI %.1f dBFS;", 10 * log10(mm->signalLevel));
+    if (mm->squawk_valid) sprintf(p, "Squawk %04o;", mm->squawk);
     *p++ = '\n';
 
     completeWrite(&Modes.raw_out, p);
